@@ -1,0 +1,39 @@
+{{- /* 自定义 RSS：在 Hugo 默认模板基础上改了三处
+     1. 没有标题的条目（短日志）用日期时间当标题，避免订阅器里出现空白条目
+     2. 忽略没有日期的页面（如「友链」这类固定页面），不让它污染时间序
+     3. lastBuildDate 取最新一篇的日期，而不是列表页自身的日期（通常为零值）
+     其余结构与 Hugo 内置模板保持一致 */ -}}
+{{- $pages := .RegularPagesRecursive -}}
+{{- if not $pages }}{{ $pages = .Pages }}{{ end -}}
+{{- $dated := slice -}}
+{{- range $pages }}{{ if not .Date.IsZero }}{{ $dated = $dated | append . }}{{ end }}{{ end -}}
+{{- $dated = sort $dated "Date" "desc" -}}
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ if ne .Title site.Title }}{{ with .Title }}{{ . }} · {{ end }}{{ site.Title }}{{ else }}{{ site.Title }}{{ end }}</title>
+    <link>{{ .Permalink }}</link>
+    <description>{{ with .Description }}{{ . }}{{ else }}Recent content {{ if ne .Title site.Title }}in {{ .Title }} {{ end }}on {{ site.Title }}{{ end }}</description>
+    <generator>Hugo</generator>
+    <language>{{ site.Language.Lang }}</language>
+    {{- with site.Params.email }}
+    <managingEditor>{{ . }} ({{ site.Params.author }})</managingEditor>
+    <webMaster>{{ . }} ({{ site.Params.author }})</webMaster>
+    {{- end }}
+    {{- with $dated }}
+    <lastBuildDate>{{ (index . 0).Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
+    {{- end }}
+    {{- with .OutputFormats.Get "RSS" }}
+    {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{- end }}
+    {{- range $dated }}
+    <item>
+      <title>{{ with .Title }}{{ . }}{{ else }}{{ .Date.Format "2006-01-02 15:04" }}{{ end }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      <guid>{{ .Permalink }}</guid>
+      <description>{{ .Content | transform.XMLEscape | safeHTML }}</description>
+    </item>
+    {{- end }}
+  </channel>
+</rss>
