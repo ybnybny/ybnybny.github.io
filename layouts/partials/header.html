@@ -1,0 +1,22 @@
+{{- $cur := . -}}
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
+    <nav class="nav" aria-label="主导航">
+      {{- range site.Menus.main }}
+        {{- $active := false }}
+        {{- with .Page }}
+          {{- if eq .Kind "home" }}
+            {{- $active = $cur.IsHome }}
+          {{- else }}
+            {{- $active = or (eq $cur .) (hasPrefix $cur.RelPermalink .RelPermalink) }}
+          {{- end }}
+        {{- end }}
+        <a href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+      {{- end }}
+      <button type="button" class="nav-search" data-search-open aria-label="站内搜索">
+        搜索<kbd>⌘K</kbd>
+      </button>
+    </nav>
+  </div>
+</header>

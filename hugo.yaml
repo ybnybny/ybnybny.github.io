@@ -1,0 +1,75 @@
+# ============================================================
+#  站点配置：日常只需要改这个文件里的 params 部分
+#  GitHub Pages 用户站：仓库名必须是 ybnybny.github.io
+# ============================================================
+
+baseURL: "https://ybnybny.github.io/"
+title: "ybnybny's Blog"
+locale: "zh-cn"
+defaultContentLanguage: "zh-cn"
+timeZone: "Asia/Shanghai"
+
+enableRobotsTXT: true
+enableEmoji: true
+hasCJKLanguage: true      # 中文摘要按字符数截断
+summaryLength: 70
+
+pagination:
+  pagerSize: 20
+
+# 不使用标签 / 分类，所有归类完全由 content/posts 下的目录结构表达
+taxonomies: {}
+
+# ---------------- 个人信息（主页、页脚都用这里） ----------------
+params:
+  author: "ybnybny"
+  email: "u202642417@xs.ustb.edu.cn"
+  avatar: "/images/ybnybny.png"
+  tagline: "写点代码，记点想法。"
+  bio:
+    - "你好，我是 ybnybny，这里是我不定期更新的一块自留地。"
+    - "长文放在「博客」里，按目录分类，按时间倒序；零散的念头放在「短日志」。"
+    - "不开放评论，有任何想说的，欢迎直接发邮件给我。"
+  github: "https://github.com/ybnybny"
+  footerNote: "本博客内容采用 CC BY-NC-SA 4.0 许可协议。"
+
+# ---------------- 顶部导航 ----------------
+menus:
+  main:
+    - name: "主页"
+      pageRef: "/"
+      weight: 10
+    - name: "博客"
+      pageRef: "/posts"
+      weight: 20
+    - name: "短日志"
+      pageRef: "/notes"
+      weight: 30
+    - name: "友链"
+      pageRef: "/friends"
+      weight: 40
+
+# ---------------- Markdown 渲染 ----------------
+markup:
+  goldmark:
+    renderer:
+      unsafe: true          # 允许在 md 里直接写 HTML
+    extensions:
+      footnote: true
+      passthrough:          # LaTeX 原样透传给 KaTeX，避免 $ 里的下划线被当成斜体
+        enable: true
+        delimiters:
+          inline:
+            - ["$", "$"]
+            - ["\\(", "\\)"]
+          block:
+            - ["$$", "$$"]
+            - ["\\[", "\\]"]
+  highlight:
+    style: "github"
+    noClasses: false
+    lineNos: false
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+    ordered: false

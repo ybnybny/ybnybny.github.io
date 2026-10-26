@@ -1,0 +1,14 @@
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-copy">
+      © {{ now.Year }} {{ site.Params.author }}
+      <span class="sep">·</span>
+      <span>{{ site.Params.footerNote }}</span>
+    </div>
+    <div class="footer-links">
+      <a href="mailto:{{ site.Params.email }}">邮箱</a>
+      {{- with site.Params.github }}<a href="{{ . }}" rel="me noopener" target="_blank">GitHub</a>{{ end }}
+      <a href="{{ "index.xml" | relURL }}">RSS</a>
+    </div>
+  </div>
+</footer>

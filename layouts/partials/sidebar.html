@@ -1,0 +1,22 @@
+{{- /* 侧栏：只在 posts 段出现，包含分类目录树 + 本页 TOC
+     如果当前页就是「博客」列表页本身，则默认把一层目录都展开，方便一眼看到全部结构 */ -}}
+<aside class="sidebar">
+  <div class="side-block side-block--first">
+    <div class="side-label">分类目录</div>
+    <a class="tree-root{{ if eq .RelPermalink "/posts/" }} is-current{{ end }}" href="{{ "/posts/" | relURL }}">
+      全部文章
+      <span class="tree-count">{{ len (where site.RegularPages "Section" "posts") }}</span>
+    </a>
+    {{- with site.GetPage "/posts" }}
+      {{- $expandAll := eq $.RelPermalink .RelPermalink }}
+      {{ partial "tree.html" (dict "section" . "page" $ "expandAll" $expandAll) }}
+    {{- end }}
+  </div>
+
+  {{- if in .TableOfContents "<li>" }}
+  <div class="side-block">
+    <div class="side-label">本页目录</div>
+    <div class="toc">{{ .TableOfContents }}</div>
+  </div>
+  {{- end }}
+</aside>

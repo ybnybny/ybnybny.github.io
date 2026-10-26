@@ -1,0 +1,51 @@
+{{ define "main" }}
+<div class="wrap layout-single">
+  <main id="main" class="single-main">
+    <section class="profile">
+      {{- with site.Params.avatar }}
+      <img class="avatar" src="{{ . | relURL }}" alt="{{ site.Params.author }}" width="96" height="96">
+      {{- end }}
+      <div class="profile-body">
+        <h1>{{ site.Params.author }}</h1>
+        {{- with site.Params.tagline }}<p class="tagline">{{ . }}</p>{{ end }}
+        <div class="bio">
+          {{- range site.Params.bio }}<p>{{ . }}</p>{{ end }}
+        </div>
+        <ul class="profile-links">
+          <li><a href="mailto:{{ site.Params.email }}">{{ site.Params.email }}</a></li>
+          {{- with site.Params.github }}<li><a href="{{ . }}" rel="me noopener" target="_blank">GitHub ↗</a></li>{{ end }}
+          <li><a href="{{ "index.xml" | relURL }}">RSS ↗</a></li>
+        </ul>
+      </div>
+    </section>
+
+    {{- with .Content }}
+    <div class="prose home-prose">{{ . }}</div>
+    {{- end }}
+
+    <section class="home-block">
+      <div class="block-head">
+        <h2>最新文章</h2>
+        <a href="{{ "/posts/" | relURL }}">全部 →</a>
+      </div>
+      <div class="post-list">
+        {{- range first 6 (where site.RegularPages "Section" "posts").ByDate.Reverse }}
+          {{ partial "post-card.html" . }}
+        {{- end }}
+      </div>
+    </section>
+
+    <section class="home-block">
+      <div class="block-head">
+        <h2>最近的短日志</h2>
+        <a href="{{ "/notes/" | relURL }}">全部 →</a>
+      </div>
+      <ol class="timeline timeline--compact">
+        {{- range first 3 (where site.RegularPages "Section" "notes").ByDate.Reverse }}
+          {{ partial "note-item.html" . }}
+        {{- end }}
+      </ol>
+    </section>
+  </main>
+</div>
+{{ end }}

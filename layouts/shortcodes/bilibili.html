@@ -1,0 +1,26 @@
+{{- /* B 站视频站内播放
+     用法：{{< bilibili BV1xx411c7mD >}}
+           {{< bilibili "https://www.bilibili.com/video/BV1xx411c7mD" >}}
+           {{< bilibili BV1xx411c7mD page="2" danmaku="1" >}} */ -}}
+{{- $arg := .Get 0 | default (.Get "bvid") | default "" -}}
+{{- if not $arg -}}
+  {{- errorf "bilibili 短代码缺少视频号：%s" .Page.File.Path -}}
+{{- end -}}
+{{- $bvid := $arg -}}
+{{- if findRE `^https?://` $arg -}}
+  {{- $bvid = replaceRE `(?s).*?(BV[0-9A-Za-z]{10}).*` `$1` $arg -}}
+{{- end -}}
+{{- $page := .Get "page" | default "1" -}}
+{{- $danmaku := .Get "danmaku" | default "0" -}}
+<figure class="bili">
+  <div class="bili-frame">
+    <iframe
+      src="https://player.bilibili.com/player.html?bvid={{ $bvid }}&page={{ $page }}&high_quality=1&danmaku={{ $danmaku }}&autoplay=0"
+      title="Bilibili 视频 {{ $bvid }}"
+      scrolling="no" frameborder="0" allowfullscreen="allowfullscreen" loading="lazy"></iframe>
+  </div>
+  <figcaption class="bili-cap">
+    <span>Bilibili · {{ $bvid }}</span>
+    <a href="https://www.bilibili.com/video/{{ $bvid }}" target="_blank" rel="noopener noreferrer">在 B 站打开 ↗</a>
+  </figcaption>
+</figure>

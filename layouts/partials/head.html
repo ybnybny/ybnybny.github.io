@@ -1,0 +1,35 @@
+{{- $title := site.Title -}}
+{{- if not .IsHome -}}
+  {{- $title = printf "%s · %s" .Title site.Title -}}
+{{- end -}}
+{{- $desc := site.Params.tagline -}}
+{{- with .Description }}{{ $desc = . }}{{ end -}}
+{{- with .Summary }}{{ if not $.Description }}{{ $desc = . | plainify | replaceRE `\s+` " " | strings.TrimSpace | truncate 150 }}{{ end }}{{ end -}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $desc }}">
+<meta name="author" content="{{ site.Params.author }}">
+<meta name="color-scheme" content="light">
+<link rel="canonical" href="{{ .Permalink }}">
+<link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" href="{{ "index.xml" | relURL }}" title="{{ site.Title }}">
+
+{{- /* 样式：main.css + Chroma 代码主题，打包压缩加指纹 */ -}}
+{{- $main := resources.Get "css/main.css" -}}
+{{- $chroma := resources.Get "css/chroma.css" -}}
+{{- $css := slice $main $chroma | resources.Concat "css/bundle.css" | minify | fingerprint -}}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+
+{{- /* 数学公式：只在正文真的出现 $ 的页面才加载，且全部本地自托管 */ -}}
+{{- if and .IsPage (or (in .RawContent "$$") (in .RawContent "$")) }}
+<link rel="stylesheet" href="{{ "vendor/katex/katex.min.css" | relURL }}">
+<script defer src="{{ "vendor/katex/katex.min.js" | relURL }}"></script>
+<script defer src="{{ "vendor/katex/contrib/auto-render.min.js" | relURL }}"></script>
+<script defer src="{{ "js/katex-init.js" | relURL }}"></script>
+{{- end }}
+
+{{- $copy := resources.Get "js/code-copy.js" | minify | fingerprint }}
+<script defer src="{{ $copy.RelPermalink }}" integrity="{{ $copy.Data.Integrity }}"></script>
+{{- $search := resources.Get "js/search.js" | minify | fingerprint }}
+<script defer src="{{ $search.RelPermalink }}" integrity="{{ $search.Data.Integrity }}"></script>

@@ -1,0 +1,16 @@
+{{- $p := . -}}
+{{- if gt $p.TotalPages 1 }}
+<nav class="pager" aria-label="分页">
+  {{- if $p.HasPrev }}
+    <a href="{{ $p.Prev.URL }}" rel="prev">← 较新</a>
+  {{- else }}
+    <span class="is-disabled">← 较新</span>
+  {{- end }}
+  <span class="pager-info">{{ $p.PageNumber }} / {{ $p.TotalPages }}</span>
+  {{- if $p.HasNext }}
+    <a href="{{ $p.Next.URL }}" rel="next">较旧 →</a>
+  {{- else }}
+    <span class="is-disabled">较旧 →</span>
+  {{- end }}
+</nav>
+{{- end }}

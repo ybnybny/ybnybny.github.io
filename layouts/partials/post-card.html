@@ -1,0 +1,17 @@
+{{- $p := . -}}
+<article class="post-card">
+  <div class="post-card-meta">
+    <time datetime="{{ $p.Date.Format "2006-01-02T15:04:05-07:00" }}">{{ $p.Date.Format "2006-01-02" }}</time>
+    {{- with $p.CurrentSection }}
+      {{- if ne .Kind "home" }}
+        <span class="sep">·</span><a class="post-card-cat" href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{- end }}
+    {{- end }}
+  </div>
+  <h2><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h2>
+  {{- $desc := $p.Description -}}
+  {{- if not $desc -}}
+    {{- $desc = $p.Summary | plainify | replaceRE `\s+` " " | strings.TrimSpace -}}
+  {{- end -}}
+  {{- with $desc }}<p class="excerpt">{{ . | truncate 140 }}</p>{{ end }}
+</article>

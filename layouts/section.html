@@ -1,0 +1,42 @@
+{{ define "main" }}
+{{- if eq .Section "notes" }}
+  {{- /* 短日志：时间线，不分类，不进入目录树 */}}
+<div class="wrap layout-single">
+  <main id="main" class="single-main">
+    <header class="page-header">
+      <h1>{{ .Title }}</h1>
+      <p class="page-sub">
+        {{ len .RegularPages }} 条 · 只按时间排列，不归类
+      </p>
+      {{- with .Content }}<div class="prose page-intro">{{ . }}</div>{{ end }}
+    </header>
+    <ol class="timeline">
+      {{- range .RegularPages.ByDate.Reverse }}
+        {{ partial "note-item.html" . }}
+      {{- end }}
+    </ol>
+  </main>
+</div>
+
+{{- else }}
+  {{- /* 博客列表：左侧目录树 + 按时间倒序的标题/简介 */}}
+<div class="wrap layout">
+  {{ partial "sidebar.html" . }}
+  <main id="main" class="content">
+    <header class="page-header">
+      <h1>{{ .Title }}</h1>
+      <p class="page-sub">{{ len .RegularPagesRecursive }} 篇文章 · 按更新时间倒序</p>
+      {{- with .Content }}<div class="prose page-intro">{{ . }}</div>{{ end }}
+    </header>
+    {{- $pages := .RegularPagesRecursive.ByDate.Reverse }}
+    {{- $paginator := .Paginate $pages }}
+    <div class="post-list">
+      {{- range $paginator.Pages }}
+        {{ partial "post-card.html" . }}
+      {{- end }}
+    </div>
+    {{ partial "pagination.html" $paginator }}
+  </main>
+</div>
+{{- end }}
+{{ end }}

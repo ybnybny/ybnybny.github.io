@@ -1,0 +1,15 @@
+# 友链列表：增删只改这个文件即可
+# 字段：name（必填）、url（必填）、desc（可选，一句话简介）、avatar（可选，留空则显示首字）
+# avatar 可以用 /images/friends/xxx.png 这种站内路径，也可以直接写外链
+
+- name: "Hugo"
+  url: "https://gohugo.io/"
+  desc: "本站使用的静态站点生成器（示例条目，可删除）"
+
+- name: "Pagefind"
+  url: "https://pagefind.app/"
+  desc: "站内搜索用的静态索引工具（示例条目，可删除）"
+
+- name: "KaTeX"
+  url: "https://katex.org/"
+  desc: "数学公式渲染（示例条目，可删除）"

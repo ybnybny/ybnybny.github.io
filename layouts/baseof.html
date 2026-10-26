@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.Locale | default "zh-cn" }}">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body class="kind-{{ .Kind }}" data-base="{{ site.Home.RelPermalink }}">
+  <a class="skip-link" href="#main">跳到正文</a>
+  {{ partial "header.html" . }}
+  {{ block "main" . }}{{ end }}
+  {{ partial "footer.html" . }}
+  {{ partial "search.html" . }}
+</body>
+</html>

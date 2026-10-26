@@ -1,0 +1,24 @@
+{{- /* 友链：数据在 data/friends.yaml，增删只改那一个文件
+     用法：在任意 md 里写 {{< friends >}} */ -}}
+{{- $friends := hugo.Data.friends -}}
+{{- with $friends }}
+<ul class="friend-grid">
+  {{- range . }}
+  <li class="friend">
+    <a class="friend-link" href="{{ .url }}" target="_blank" rel="noopener noreferrer">
+      {{- with .avatar }}
+      <img class="friend-avatar" src="{{ . | relURL }}" alt="" width="40" height="40" loading="lazy">
+      {{- else }}
+      <span class="friend-avatar friend-avatar--text" aria-hidden="true">{{ substr .name 0 1 }}</span>
+      {{- end }}
+      <span class="friend-body">
+        <span class="friend-name">{{ .name }}</span>
+        {{- with .desc }}<span class="friend-desc">{{ . }}</span>{{ end }}
+      </span>
+    </a>
+  </li>
+  {{- end }}
+</ul>
+{{- else }}
+<p class="muted">还没有添加友链。在 <code>data/friends.yaml</code> 里按格式添加即可。</p>
+{{- end }}

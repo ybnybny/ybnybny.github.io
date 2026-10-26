@@ -1,0 +1,38 @@
+{{ define "main" }}
+{{- $isPost := eq .Section "posts" -}}
+{{- $isNote := eq .Section "notes" -}}
+<div class="wrap {{ if $isPost }}layout{{ else }}layout-single{{ end }}">
+  {{- if $isPost }}{{ partial "sidebar.html" . }}{{ end }}
+  <main id="main" class="content">
+    <article class="post">
+      <header class="post-header">
+        {{- if $isNote }}
+        <div class="post-meta post-meta--note">
+          <time datetime="{{ .Date.Format "2006-01-02T15:04:05-07:00" }}">{{ .Date.Format "2006-01-02 15:04" }}</time>
+          <span class="sep">·</span>
+          <a href="{{ "/notes/" | relURL }}">短日志</a>
+        </div>
+        {{- else }}
+        <h1>{{ .Title }}</h1>
+        <div class="post-meta">
+          {{- if $isPost }}
+          <time datetime="{{ .Date.Format "2006-01-02T15:04:05-07:00" }}">{{ .Date.Format "2006-01-02" }}</time>
+          {{- end }}
+          {{- with .CurrentSection }}
+            {{- if and (ne .Kind "home") (ne .Kind "page") }}
+              <span class="sep">·</span><span>{{ .Title }}</span>
+            {{- end }}
+          {{- end }}
+          <span class="sep">·</span><span>{{ .WordCount }} 字</span>
+        </div>
+        {{- end }}
+        {{- with .Description }}<p class="post-sub">{{ . }}</p>{{ end }}
+      </header>
+
+      <div class="prose" data-pagefind-body>{{ .Content }}</div>
+
+      {{- if $isPost }}{{ partial "post-nav.html" . }}{{ end }}
+    </article>
+  </main>
+</div>
+{{ end }}

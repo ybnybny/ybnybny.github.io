@@ -1,0 +1,18 @@
+{{ define "main" }}
+<div class="wrap layout-single">
+  <main id="main" class="single-main">
+    <header class="page-header">
+      <h1>404</h1>
+      <p class="page-sub">这个页面不存在，可能已经移动到别处了。</p>
+    </header>
+    <div class="prose">
+      <p>可以试试：</p>
+      <ul>
+        <li><a href="{{ site.Home.RelPermalink }}">回到主页</a></li>
+        <li><a href="{{ "/posts/" | relURL }}">浏览全部文章</a></li>
+        <li>或者用右上角的搜索找找看。</li>
+      </ul>
+    </div>
+  </main>
+</div>
+{{ end }}

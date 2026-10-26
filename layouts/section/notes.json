@@ -1,0 +1,14 @@
+{{- /* 输出 /notes/index.json：给以后的主页桌宠/其他组件读取短日志用
+       只输出纯文本，保证下游不需要解析 HTML 或图片 */ -}}
+{{- $items := slice -}}
+{{- range .RegularPages.ByDate.Reverse -}}
+  {{- $text := .Content | plainify | replaceRE `\s+` " " | strings.TrimSpace -}}
+  {{- if $text -}}
+    {{- $items = $items | append (dict
+        "date" (.Date.Format "2006-01-02T15:04:05-07:00")
+        "text" $text
+        "url" .RelPermalink
+    ) -}}
+  {{- end -}}
+{{- end -}}
+{{- $items | jsonify (dict "indent" "  ") -}}

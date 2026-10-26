@@ -1,0 +1,23 @@
+{{- /* 上一篇 / 下一篇：按全站 posts 的时间倒序计算，跨目录也连续 */ -}}
+{{- $all := (where site.RegularPages "Section" "posts").ByDate.Reverse -}}
+{{- $cur := . -}}
+{{- $idx := -1 -}}
+{{- range $i, $p := $all }}{{ if eq $p $cur }}{{ $idx = $i }}{{ end }}{{ end -}}
+{{- if ge $idx 0 -}}
+  {{- $newer := "" }}{{ if gt $idx 0 }}{{ $newer = index $all (sub $idx 1) }}{{ end -}}
+  {{- $older := "" }}{{ if lt $idx (sub (len $all) 1) }}{{ $older = index $all (add $idx 1) }}{{ end -}}
+  <nav class="post-nav">
+    <div class="post-nav-item">
+      {{- with $newer }}
+      <span class="post-nav-label">较新一篇</span>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{- end }}
+    </div>
+    <div class="post-nav-item post-nav-item--right">
+      {{- with $older }}
+      <span class="post-nav-label">较早一篇</span>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{- end }}
+    </div>
+  </nav>
+{{- end -}}
