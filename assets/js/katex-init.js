@@ -2,7 +2,11 @@
    关键点：忽略 pre/code，避免代码块里的 $ 被当成公式 */
 (function () {
   function run() {
-    if (typeof renderMathInElement !== "function") return;
+    // 依赖没加载成功时要出声，否则页面会静默保留原始的 $...$ 文本
+    if (typeof renderMathInElement !== "function") {
+      console.error("[katex] auto-render 未加载，公式不会被渲染。检查 vendor/katex/contrib/auto-render.min.js 是否 404。");
+      return;
+    }
     renderMathInElement(document.body, {
       delimiters: [
         { left: "$$", right: "$$", display: true },

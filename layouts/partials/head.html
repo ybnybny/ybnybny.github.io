@@ -21,12 +21,15 @@
 {{- $css := slice $main $chroma | resources.Concat "css/bundle.css" | minify | fingerprint -}}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
 
-{{- /* 数学公式：只在正文真的出现 $ 的页面才加载，且全部本地自托管 */ -}}
+{{- /* 数学公式：只在正文真的出现 $ 的页面才加载，且全部本地自托管
+     注意 katex-init.js 在 assets/ 里，必须走 Hugo Pipes 才会被发布；
+     写成 "js/katex-init.js" | relURL 会 404（assets/ 不是 static/） */ -}}
 {{- if and .IsPage (or (in .RawContent "$$") (in .RawContent "$")) }}
 <link rel="stylesheet" href="{{ "vendor/katex/katex.min.css" | relURL }}">
 <script defer src="{{ "vendor/katex/katex.min.js" | relURL }}"></script>
 <script defer src="{{ "vendor/katex/contrib/auto-render.min.js" | relURL }}"></script>
-<script defer src="{{ "js/katex-init.js" | relURL }}"></script>
+{{- $katexInit := resources.Get "js/katex-init.js" | minify | fingerprint }}
+<script defer src="{{ $katexInit.RelPermalink }}" integrity="{{ $katexInit.Data.Integrity }}"></script>
 {{- end }}
 
 {{- $copy := resources.Get "js/code-copy.js" | minify | fingerprint }}

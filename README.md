@@ -288,6 +288,39 @@ node tools/check-math.js        # 不写路径时默认检查 Permutation 那篇
 
 它会逐条渲染并报告：语法错误、缺字体度量的字符、把块公式写成单 `$` 的地方。**构建是查不出这些问题的**（KaTeX 在前端运行，`throwOnError: false` 会静默吞掉），所以写完公式跑一遍这个脚本最省事。
 
+### 页面只剩一堆 `$$`（公式完全不渲染）
+
+这是另一类故障：公式文本原样留在页面上，一个都没转换。
+
+**根因**：`assets/js/katex-init.js` 是调用 KaTeX 的那段胶水代码，它在 `assets/` 目录里。**Hugo 不发布 `assets/`**，必须经过 `resources.Get ... | minify | fingerprint` 才会输出到 `public/`。如果图省事写成 `{{ "js/katex-init.js" | relURL }}`，那个地址会 404，页面于是原样显示 `$$...$$`。
+
+**这条规则适用于所有脚本和样式**：
+
+| 文件位置 | 引用方式 |
+| --- | --- |
+| `assets/` | 必须 `resources.Get "..." \| ...`，用 `.RelPermalink` |
+| `static/` | 可以直接 `"路径" \| relURL` |
+
+判断方法：构建后看 `public/` 里到底有没有那个文件。
+
+```powershell
+Test-Path public/js/katex-init.min.<hash>.js
+```
+
+**怎么确认线上真的渲染了**：不要只看 HTML 里有没有 `$$`，要看有没有 KaTeX 生成的节点。用无头浏览器渲染后再检查：
+
+```powershell
+hugo server --port 13139 --bind 127.0.0.1
+$edge = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+& $edge --headless=new --disable-gpu --no-proxy-server --virtual-time-budget=10000 `
+  --dump-dom "http://127.0.0.1:13139/posts/algorithm/permutation/" |
+  Out-File "$env:TEMP\rendered.html" -Encoding utf8
+```
+
+然后在 `rendered.html` 里搜 `class="katex"`。搜到 = 真的渲染了；只搜到 `$$` = 链路断了。
+
+> 这次的教训：前一轮只验证了「HTML 里有 `$$`」「KaTeX 已加载」，这两条都成立但页面依然是坏的，因为**负责调用它们的脚本 404 了**。验证要一路做到「渲染结果」这一步。
+
 ### 代码块
 
 ````markdown
