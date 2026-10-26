@@ -25,11 +25,10 @@ params:
   author: "ybnybny"
   email: "u202642417@xs.ustb.edu.cn"
   avatar: "/images/ybnybny.png"
-  tagline: "写点代码，记点想法。"
+  tagline: "你好"
   bio:
-    - "你好，我是 ybnybny，这里是我不定期更新的一块自留地。"
-    - "长文放在「博客」里，按目录分类，按时间倒序；零散的念头放在「短日志」。"
-    - "不开放评论，有任何想说的，欢迎直接发邮件给我。"
+    - "不知道说什么呢，这里似乎是简介来着，但真的有什么可介绍的吗"
+    - "人类？存活？"
   github: "https://github.com/ybnybny"
   footerNote: "本博客内容采用 CC BY-NC-SA 4.0 许可协议。"
 
@@ -42,12 +41,15 @@ menus:
     - name: "博客"
       pageRef: "/posts"
       weight: 20
-    - name: "短日志"
+    - name: "随记"
       pageRef: "/notes"
       weight: 30
-    - name: "友链"
+    - name: "链接"
       pageRef: "/friends"
       weight: 40
+    - name: "留言"
+      pageRef: "/message"
+      weight: 50
 
 # ---------------- Markdown 渲染 ----------------
 markup:

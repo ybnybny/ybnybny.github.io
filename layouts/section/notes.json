@@ -1,4 +1,4 @@
-{{- /* 输出 /notes/index.json：给以后的主页桌宠/其他组件读取短日志用
+{{- /* 输出 /notes/index.json：给以后的主页桌宠/其他组件读取随记用
        只输出纯文本，保证下游不需要解析 HTML 或图片 */ -}}
 {{- $items := slice -}}
 {{- range .RegularPages.ByDate.Reverse -}}

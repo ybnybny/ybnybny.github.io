@@ -1,4 +1,4 @@
-{{- /* 友链：数据全部在 data/friends.yaml，增删改不需要碰这个文件
+{{- /* 链接页：数据全部在 data/friends.yaml，增删改不需要碰这个文件
      用法：在任意 md 里写 {{< friends >}}
 
      支持两种数据格式：
@@ -6,7 +6,7 @@
        2) 平铺格式（旧版兼容）：顶层直接是一个列表 */ -}}
 {{- $data := hugo.Data.friends -}}
 {{- if not $data -}}
-  <p class="muted">还没有配置友链。在 <code>data/friends.yaml</code> 里按格式添加即可。</p>
+  <p class="muted">还没有配置任何链接。在 <code>data/friends.yaml</code> 里按格式添加即可。</p>
 {{- else -}}
 
   {{- /* 统一成 groups 列表，便于后面只写一套渲染逻辑 */ -}}
@@ -19,7 +19,7 @@
     {{- with $data.groups }}{{ $groups = . }}{{ end -}}
   {{- end -}}
 
-  {{- /* 本站信息：方便别人复制去加友链；没配就不显示 */ -}}
+  {{- /* 本站信息：方便别人复制去添加链接；没配就不显示 */ -}}
   {{- with $site.name }}
   <section class="friend-self">
     <div class="friend-self-label">本站信息 · 欢迎取用</div>

@@ -1,8 +1,8 @@
 {{- /* 图片渲染钩子：统一加 lazy 加载 + 说明文字
-     同时在这里「硬拦截」短日志里的图片（需求：短日志不允许上传图片） */ -}}
+     同时在这里「硬拦截」随记里的图片（约定：随记只写文字，不配图） */ -}}
 {{- $dest := .Destination -}}
 {{- if eq .Page.Section "notes" -}}
-  {{- warnf "短日志不允许插入图片，已忽略：%s -> %s" .Page.File.Path $dest -}}
+  {{- warnf "随记不允许插入图片，已忽略：%s -> %s" .Page.File.Path $dest -}}
 {{- else -}}
 <figure class="md-figure">
   <img src="{{ $dest | safeURL }}" alt="{{ .Text }}" loading="lazy" decoding="async">

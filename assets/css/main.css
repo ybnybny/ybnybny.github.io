@@ -751,7 +751,7 @@ ul.tree ul.tree {
 .block-head a:hover { color: var(--fg); }
 .home-block .post-list { border-top: 0; }
 
-/* ------------------------------ 短日志时间线 ------------------------------ */
+/* ------------------------------ 随记时间线 ------------------------------ */
 
 .timeline {
   list-style: none;
@@ -794,9 +794,8 @@ ul.tree ul.tree {
 }
 .note-body a:hover { text-decoration-color: var(--fg); }
 
-/* ------------------------------ 友链 ------------------------------ */
-
-/* 本站信息卡：给别人抄去加友链用的 */
+/* ------------------------------ 链接页 ------------------------------ */
+/* 本站信息卡：给别人抄去添加链接用的 */
 .friend-self {
   border: 1px solid var(--line);
   background: var(--code-bg);
