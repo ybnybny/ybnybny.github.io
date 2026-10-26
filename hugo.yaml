@@ -47,7 +47,7 @@ menus:
     - name: "链接"
       pageRef: "/friends"
       weight: 40
-    - name: "留言"
+    - name: "(・ω・)"
       pageRef: "/message"
       weight: 50
 

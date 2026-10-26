@@ -118,7 +118,7 @@ git push
 content/
 ├─ _index.md              主页（个人简介，内容在 hugo.yaml 的 params 里）
 ├─ friends.md             链接页（页面标题是「链接」，文件名保持 friends 是历史原因）
-├─ message.md             留言（Claude 写的那一页，可直接删）
+├─ message.md             (・ω・) 页（Claude 写的那一页，可直接删）
 ├─ posts/                 长文，文件夹即分类
 │  ├─ tech/
 │  │  └─ this-blog/
@@ -269,6 +269,24 @@ $$
 ```
 
 只在**真的用到公式的页面**才加载 KaTeX，其他页面零额外请求。
+
+**四条必须遵守的规则**（都踩过）：
+
+| 规则 | 原因 |
+| --- | --- |
+| 行内用单个 `$...$`，块公式用 `$$...$$` | 单 `$` 写成三行会被当成**行内**公式，`\begin{pmatrix}` 会挤成一小坨 |
+| **不要**用 Unicode 数学字符，用命令：`\sigma` 不是 `𝜎`，`\times` 不是 `×`，`\cdots` 不是 `⋯` | KaTeX 字体里没有 `𝜎`（U+1D70E）的字形度量，会**静默渲染成空白**，构建和页面都不报错 |
+| 块引用里的 `$$` 必须写成**一行** | `>` 前缀会被卷进公式内容，渲染出多余的 `>` 符号 |
+| `date` 别写成未来的时间 | Hugo 默认不构建未来页面，**静默消失、无任何报错** |
+
+排查公式问题时，用自带的检查脚本（需要 Node）：
+
+```bash
+node tools/check-math.js content/posts/algorithm/Permutation/index.md
+node tools/check-math.js        # 不写路径时默认检查 Permutation 那篇
+```
+
+它会逐条渲染并报告：语法错误、缺字体度量的字符、把块公式写成单 `$` 的地方。**构建是查不出这些问题的**（KaTeX 在前端运行，`throwOnError: false` 会静默吞掉），所以写完公式跑一遍这个脚本最省事。
 
 ### 代码块
 
