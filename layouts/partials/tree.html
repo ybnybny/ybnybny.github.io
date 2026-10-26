@@ -1,6 +1,7 @@
 {{- /* 递归渲染目录树
      参数：section（要渲染的目录）、page（当前页）、expandAll（是否强制展开）
-     顺序：先子目录，再本目录下的文章（按时间倒序） */ -}}
+     顺序：先子目录，再本目录下的文章（按时间倒序）
+     空目录（递归后一篇文章都没有）直接跳过，不显示为可展开节点 */ -}}
 {{- $section := .section -}}
 {{- $page := .page -}}
 {{- $expandAll := .expandAll | default false -}}
@@ -8,17 +9,20 @@
 <ul class="tree">
   {{- range $section.Sections }}
     {{- $sub := . }}
-    {{- $open := $expandAll }}
-    {{- if hasPrefix $curURL $sub.RelPermalink }}{{ $open = true }}{{ end }}
-    <li class="tree-dir">
-      <details{{ if $open }} open{{ end }}>
-        <summary>
-          <a href="{{ $sub.RelPermalink }}"{{ if eq $page $sub }} class="is-current"{{ end }}>{{ $sub.Title }}</a>
-          <span class="tree-count">{{ len $sub.RegularPagesRecursive }}</span>
-        </summary>
-        {{ partial "tree.html" (dict "section" $sub "page" $page "expandAll" $expandAll) }}
-      </details>
-    </li>
+    {{- $count := len $sub.RegularPagesRecursive }}
+    {{- if gt $count 0 }}
+      {{- $open := $expandAll }}
+      {{- if hasPrefix $curURL $sub.RelPermalink }}{{ $open = true }}{{ end }}
+      <li class="tree-dir">
+        <details{{ if $open }} open{{ end }}>
+          <summary>
+            <a href="{{ $sub.RelPermalink }}"{{ if eq $page $sub }} class="is-current"{{ end }}>{{ $sub.Title }}</a>
+            <span class="tree-count">{{ $count }}</span>
+          </summary>
+          {{ partial "tree.html" (dict "section" $sub "page" $page "expandAll" $expandAll) }}
+        </details>
+      </li>
+    {{- end }}
   {{- end }}
   {{- range $section.RegularPages.ByDate.Reverse }}
     <li class="tree-post">

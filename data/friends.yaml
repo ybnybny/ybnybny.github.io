@@ -1,15 +1,55 @@
-# 友链列表：增删只改这个文件即可
-# 字段：name（必填）、url（必填）、desc（可选，一句话简介）、avatar（可选，留空则显示首字）
-# avatar 可以用 /images/friends/xxx.png 这种站内路径，也可以直接写外链
+# ============================================================
+#  友链与收藏
+#  增删改只动这一个文件，不需要碰模板
+#  条目字段：
+#    name   （必填）站点名
+#    url    （必填）网址，记得带 https://
+#    desc   （可选）一句话简介
+#    avatar （可选）头像：/images/friends/xxx.png 或外链；留空则显示名字首字
+#  分组字段：
+#    name   （必填）分组名，留空则该组不显示标题
+#    desc   （可选）分组说明，显示在标题下方
+#    items  （必填）该组的条目列表
+#  想调整顺序：直接挪动整段，越靠前越早上显示
+# ============================================================
 
-- name: "Hugo"
-  url: "https://gohugo.io/"
-  desc: "本站使用的静态站点生成器（示例条目，可删除）"
+# ---------- 本站信息：方便别人把你加成友链 ----------
+# 整段删掉就不会显示这块
+site:
+  name: "ybnybny"
+  url: "https://ybnybny.github.io/"
+  desc: "写点代码，记点想法。"
+  avatar: "/images/ybnybny.png"
 
-- name: "Pagefind"
-  url: "https://pagefind.app/"
-  desc: "站内搜索用的静态索引工具（示例条目，可删除）"
+groups:
+  # ---------- 真正的友链：对等的个人博客 ----------
+  - name: "朋友们"
+    desc: "互相认识的个人博客，欢迎交换。"
+    items:
+      - name: "示例站点 A"
+        url: "https://example.com/"
+        desc: "这是一条示例，换成朋友的博客后删掉这行注释"
 
-- name: "KaTeX"
-  url: "https://katex.org/"
-  desc: "数学公式渲染（示例条目，可删除）"
+      - name: "示例站点 B"
+        url: "https://example.org/"
+        desc: "头像可留空，会自动显示名字首字"
+
+  # ---------- 别人的站，但没交集 ----------
+  - name: "常逛"
+    desc: "不一定认识作者，但内容值得反复看。"
+    items:
+      - name: "Hugo"
+        url: "https://gohugo.io/"
+        desc: "本站使用的静态站点生成器"
+
+  # ---------- 跟「友」无关，纯粹是工具 ----------
+  - name: "工具与文档"
+    desc: "干活时会打开的那些。"
+    items:
+      - name: "Pagefind"
+        url: "https://pagefind.app/"
+        desc: "站内搜索的静态索引工具"
+
+      - name: "KaTeX"
+        url: "https://katex.org/"
+        desc: "数学公式渲染引擎"

@@ -2,10 +2,9 @@
 <article class="post-card">
   <div class="post-card-meta">
     <time datetime="{{ $p.Date.Format "2006-01-02T15:04:05-07:00" }}">{{ $p.Date.Format "2006-01-02" }}</time>
-    {{- with $p.CurrentSection }}
-      {{- if ne .Kind "home" }}
-        <span class="sep">·</span><a class="post-card-cat" href="{{ .RelPermalink }}">{{ .Title }}</a>
-      {{- end }}
+    {{- $cats := partial "cats.html" $p -}}
+    {{- with $cats }}
+      <span class="sep">·</span><span class="post-card-cat">{{ . }}</span>
     {{- end }}
   </div>
   <h2><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h2>

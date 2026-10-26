@@ -34,6 +34,9 @@
       {{- range $paginator.Pages }}
         {{ partial "post-card.html" . }}
       {{- end }}
+      {{- if not $paginator.Pages }}
+      <p class="empty-hint">这个分类下还没有文章。</p>
+      {{- end }}
     </div>
     {{ partial "pagination.html" $paginator }}
   </main>

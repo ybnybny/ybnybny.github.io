@@ -20,7 +20,7 @@
           {{- end }}
           {{- with .CurrentSection }}
             {{- if and (ne .Kind "home") (ne .Kind "page") }}
-              <span class="sep">·</span><span>{{ .Title }}</span>
+              <span class="sep">·</span>{{ partial "cats.html" $ }}
             {{- end }}
           {{- end }}
           <span class="sep">·</span><span>{{ .WordCount }} 字</span>

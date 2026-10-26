@@ -1,0 +1,20 @@
+{{- /* 输出页面所属的分类路径，深层嵌套时显示完整链，如：技术 / 前端 / CSS
+     用法：{{ partial "cats.html" . }}
+
+     取祖先链后从上往下输出。父级是首页的那个顶层容器（本站是「博客」/posts/）
+     会被跳过——因为整站都是博客，再写一遍「博客 /」纯属重复。 */ -}}
+{{- $p := . -}}
+{{- $secs := slice -}}
+{{- range $p.Ancestors.Reverse }}
+  {{- if and (eq .Kind "section") (ne .Parent.Kind "home") }}
+    {{- $secs = $secs | append . }}
+  {{- end }}
+{{- end -}}
+{{- if $secs -}}
+<span class="cats">
+  {{- range $i, $s := $secs -}}
+    {{- if $i }}<span class="cats-sep">/</span>{{ end -}}
+    <a href="{{ $s.RelPermalink }}">{{ $s.Title }}</a>
+  {{- end -}}
+</span>
+{{- end -}}

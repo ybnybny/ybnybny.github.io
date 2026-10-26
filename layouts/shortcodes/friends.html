@@ -1,24 +1,64 @@
-{{- /* 友链：数据在 data/friends.yaml，增删只改那一个文件
-     用法：在任意 md 里写 {{< friends >}} */ -}}
-{{- $friends := hugo.Data.friends -}}
-{{- with $friends }}
-<ul class="friend-grid">
-  {{- range . }}
-  <li class="friend">
-    <a class="friend-link" href="{{ .url }}" target="_blank" rel="noopener noreferrer">
-      {{- with .avatar }}
-      <img class="friend-avatar" src="{{ . | relURL }}" alt="" width="40" height="40" loading="lazy">
-      {{- else }}
-      <span class="friend-avatar friend-avatar--text" aria-hidden="true">{{ substr .name 0 1 }}</span>
-      {{- end }}
-      <span class="friend-body">
-        <span class="friend-name">{{ .name }}</span>
-        {{- with .desc }}<span class="friend-desc">{{ . }}</span>{{ end }}
-      </span>
-    </a>
-  </li>
+{{- /* 友链：数据全部在 data/friends.yaml，增删改不需要碰这个文件
+     用法：在任意 md 里写 {{< friends >}}
+
+     支持两种数据格式：
+       1) 分组格式（推荐）：顶层是 site + groups
+       2) 平铺格式（旧版兼容）：顶层直接是一个列表 */ -}}
+{{- $data := hugo.Data.friends -}}
+{{- if not $data -}}
+  <p class="muted">还没有配置友链。在 <code>data/friends.yaml</code> 里按格式添加即可。</p>
+{{- else -}}
+
+  {{- /* 统一成 groups 列表，便于后面只写一套渲染逻辑 */ -}}
+  {{- $site := dict -}}
+  {{- $groups := slice -}}
+  {{- if reflect.IsSlice $data -}}
+    {{- $groups = slice (dict "name" "" "desc" "" "items" $data) -}}
+  {{- else -}}
+    {{- with $data.site }}{{ $site = . }}{{ end -}}
+    {{- with $data.groups }}{{ $groups = . }}{{ end -}}
+  {{- end -}}
+
+  {{- /* 本站信息：方便别人复制去加友链；没配就不显示 */ -}}
+  {{- with $site.name }}
+  <section class="friend-self">
+    <div class="friend-self-label">本站信息 · 欢迎取用</div>
+    <dl class="friend-self-grid">
+      <dt>名称</dt><dd>{{ . }}</dd>
+      {{- with $site.url }}<dt>网址</dt><dd><code>{{ . }}</code></dd>{{ end }}
+      {{- with $site.desc }}<dt>简介</dt><dd>{{ . }}</dd>{{ end }}
+      {{- with $site.avatar }}<dt>头像</dt><dd><code>{{ . }}</code></dd>{{ end }}
+    </dl>
+  </section>
   {{- end }}
-</ul>
-{{- else }}
-<p class="muted">还没有添加友链。在 <code>data/friends.yaml</code> 里按格式添加即可。</p>
-{{- end }}
+
+  {{- range $groups }}
+    {{- $g := . }}
+    <section class="friend-group">
+      {{- with $g.name }}
+      <div class="friend-group-head">
+        <h2 class="friend-group-name">{{ . }}</h2>
+        <span class="friend-group-count">{{ len $g.items }}</span>
+      </div>
+      {{- end }}
+      {{- with $g.desc }}<p class="friend-group-desc">{{ . }}</p>{{ end }}
+      <ul class="friend-grid">
+        {{- range $g.items }}
+        <li class="friend">
+          <a class="friend-link" href="{{ .url }}" target="_blank" rel="noopener noreferrer">
+            {{- with .avatar }}
+            <img class="friend-avatar" src="{{ . | relURL }}" alt="" width="40" height="40" loading="lazy">
+            {{- else }}
+            <span class="friend-avatar friend-avatar--text" aria-hidden="true">{{ substr .name 0 1 }}</span>
+            {{- end }}
+            <span class="friend-body">
+              <span class="friend-name">{{ .name }}</span>
+              {{- with .desc }}<span class="friend-desc">{{ . }}</span>{{ end }}
+            </span>
+          </a>
+        </li>
+        {{- end }}
+      </ul>
+    </section>
+  {{- end -}}
+{{- end -}}
