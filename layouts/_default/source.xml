@@ -1,0 +1,89 @@
+{{- /* Source 专供订阅源：只收录 data/source.yaml 里点名的页面
+     地址：/source/index.xml
+     和全站 index.xml 的区别：内容由你挑选，不强求全量；只输出纯文本简介
+     路径写错、重复、缺 date 都会 warnf 报出来，不会静默少一条
+
+     注意两个 Hugo 与 Go 标准库不一致的地方（踩过）：
+     strings.Trim 是 (字符串, cutset) 而不是 (cutset, 字符串)
+     substr 是 (字符串, 起点, 长度) —— 参数顺序反了会直接报错 */ -}}
+{{- $items := slice -}}
+{{- with hugo.Data.source }}{{ $items = .items | default slice }}{{ end -}}
+
+{{- $pages := slice -}}
+{{- $meta := dict -}}
+{{- $seen := dict -}}
+
+{{- range $i, $raw := $items -}}
+  {{- $path := $raw -}}
+  {{- $blurb := "" -}}
+  {{- $titleOverride := "" -}}
+  {{- if reflect.IsMap $raw -}}
+    {{- $path = $raw.path -}}
+    {{- $blurb = $raw.blurb | default "" -}}
+    {{- $titleOverride = $raw.title | default "" -}}
+  {{- end -}}
+  {{- if not $path -}}
+    {{- warnf "source: data/source.yaml 第 %d 项缺少 path，已跳过" (add $i 1) -}}
+  {{- else -}}
+    {{- $want := replaceRE `^/+|/+$` "" (lower $path) -}}
+    {{- $hit := false -}}
+    {{- range $p := site.RegularPages -}}
+      {{- if not $hit -}}
+        {{- range $k := (slice ((urls.Parse $p.RelPermalink).Path) $p.Path) -}}
+          {{- if not $hit -}}
+            {{- if eq (replaceRE `^/+|/+$` "" (lower $k)) $want -}}
+              {{- $hit = true -}}
+              {{- if isset $seen $p.RelPermalink -}}
+                {{- warnf "source: %q 重复出现（data/source.yaml 第 %d 项），已忽略后一条" $path (add $i 1) -}}
+              {{- else if $p.Date.IsZero -}}
+                {{- warnf "source: %q 没有 date，无法按时间排序，已跳过（data/source.yaml 第 %d 项）" $path (add $i 1) -}}
+              {{- else -}}
+                {{- $pages = $pages | append $p -}}
+                {{- $meta = merge $meta (dict $p.RelPermalink (dict "blurb" $blurb "title" $titleOverride)) -}}
+                {{- $seen = merge $seen (dict $p.RelPermalink true) -}}
+              {{- end -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if not $hit -}}
+      {{- warnf "source: 找不到页面 %q（data/source.yaml 第 %d 项），已跳过" $path (add $i 1) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $pages = sort $pages "Date" "desc" -}}
+{{- if not $pages }}
+{{- warnf "source: 没有任何条目，检查 data/source.yaml 的 items 是否为空或路径是否写错" }}
+{{- end -}}
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ site.Title }} · Source</title>
+    <link>{{ site.Home.Permalink }}</link>
+    <description>{{ with .Description }}{{ . }}{{ else }}投给 Source 的精选内容{{ end }}</description>
+    <generator>Hugo</generator>
+    <language>{{ site.Language.Lang }}</language>
+    {{- with site.Params.email }}
+    <managingEditor>{{ . }} ({{ site.Params.author }})</managingEditor>
+    <webMaster>{{ . }} ({{ site.Params.author }})</webMaster>
+    {{- end }}
+    {{- with $pages }}
+    <lastBuildDate>{{ (index . 0).Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
+    {{- end }}
+    {{- with .OutputFormats.Get "source" }}
+    {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{- end }}
+    {{- range $pages }}
+    {{- $m := index $meta .RelPermalink }}
+    <item>
+      <title>{{ with $m.title }}{{ . }}{{ else }}{{ with .Title }}{{ . }}{{ else }}{{ .Date.Format "2006-01-02 15:04" }}{{ end }}{{ end }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      <guid>{{ .Permalink }}</guid>
+      <description>{{ partial "feed-description.html" (dict "page" . "blurb" $m.blurb) | transform.XMLEscape | safeHTML }}</description>
+    </item>
+    {{- end }}
+  </channel>
+</rss>

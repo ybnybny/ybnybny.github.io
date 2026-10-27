@@ -1,7 +1,8 @@
-{{- /* 自定义 RSS：在 Hugo 默认模板基础上改了三处
+{{- /* 自定义 RSS：在 Hugo 默认模板基础上改了四处
      1. 没有标题的条目（随记）用日期时间当标题，避免订阅器里出现空白条目
      2. 忽略没有日期的页面（如「链接」这类固定页面），不让它污染时间序
      3. lastBuildDate 取最新一篇的日期，而不是列表页自身的日期（通常为零值）
+     4. description 输出纯文本简介而不是整篇正文，避免长文在订阅器里刷屏
      其余结构与 Hugo 内置模板保持一致 */ -}}
 {{- $pages := .RegularPagesRecursive -}}
 {{- if not $pages }}{{ $pages = .Pages }}{{ end -}}
@@ -32,7 +33,7 @@
       <link>{{ .Permalink }}</link>
       <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
       <guid>{{ .Permalink }}</guid>
-      <description>{{ .Content | transform.XMLEscape | safeHTML }}</description>
+      <description>{{ partial "feed-description.html" (dict "page" .) | transform.XMLEscape | safeHTML }}</description>
     </item>
     {{- end }}
   </channel>

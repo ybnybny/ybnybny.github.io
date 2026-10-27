@@ -1,0 +1,24 @@
+{{- /* 生成订阅源 <description> 的纯文本简介
+     优先级：调用方传入的 blurb > 随记全文（随记本身很短）> 正文 description > 自动摘要
+     返回纯文本，不含 HTML 标签和图片，避免集体博客里排版乱掉
+     参数：dict "page" 页面 "blurb" 可选 */ -}}
+{{- $p := .page -}}
+{{- $blurb := .blurb | default "" -}}
+{{- $text := "" -}}
+{{- if $blurb -}}
+  {{- $text = $blurb -}}
+{{- else if eq $p.Section "notes" -}}
+  {{- $text = $p.Content | plainify -}}
+{{- else -}}
+  {{- with $p.Description }}{{ $text = . }}{{ end -}}
+  {{- if not $text }}{{ $text = $p.Summary | plainify }}{{ end -}}
+{{- end -}}
+{{- $text = $text | replaceRE `\s+` " " | strings.TrimSpace -}}
+{{- if gt (strings.RuneCount $text) 300 -}}
+  {{- $text = printf "%s…" (substr $text 0 300) -}}
+{{- end -}}
+{{- /* 纯图片帖没有文字，给个兜底，避免订阅器里出现空条目 */ -}}
+{{- if not $text -}}
+  {{- $text = "（这篇没有正文文字，点标题查看原文。）" -}}
+{{- end -}}
+{{- return $text -}}

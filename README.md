@@ -134,6 +134,8 @@ content/
    ├─ _index.md
    └─ 2026-10-26-Hello.md
 
+content/source.md         Source 专供订阅源的载体（只产出 xml，没有网页）
+data/source.yaml          Source 投递清单（决定哪几篇进 /source/index.xml）
 data/friends.yaml         链接页数据（增删改只动这个文件）
 hugo.yaml                 全部站点配置（含顶部导航）
 layouts/                  模板
@@ -467,11 +469,61 @@ Hugo 在每次构建时自动生成，你什么都不用做：
 | `/index.xml` | 全站（长文 + 随记） | **主推这一个** |
 | `/posts/index.xml` | 只有长文章 | 只关心长文的读者 |
 | `/notes/index.xml` | 只有随记 | 只追碎片想法 |
+| `/source/index.xml` | **你挑选的**，投给科协 Source | 见下一节 |
 | `/posts/tech/index.xml` | 单个分类 | 分类很专一时才有用 |
 | `/posts/painting/index.xml` | 单个分类 | 同上 |
 
+**所有 feed 的 `<description>` 都是纯文本简介，不是整篇正文。** 长文取 `description` 字段，没写就取自动摘要；随记取全文（随记本来就很短）。简介上限 300 字，超了截断加省略号。之前是整篇 `{{ .Content }}` 塞进去，长文在阅读器和集体博客里会铺满好几屏，现在不会了。
+
 随记没有标题，所以在 feed 里会自动用日期时间（如 `2026-10-24 23:12`）作为条目标题，不会出现空白条目。
 
+### 给科协 Source 的专供订阅源
+
+地址：<https://ybnybny.github.io/source/index.xml>
+
+它和全站 feed 的区别：**内容由你挑选**，没写进清单的一律不出现。
+
+**怎么选**：只改 `data/source.yaml` 一个文件。不用碰文章本身，也不用给文章加任何字段。
+
+```yaml
+items:
+  - /posts/algorithm/permutation/
+  - /notes/2026-10-26-重置/
+```
+
+路径就是网址，**结尾斜杠带不带都行，大小写不敏感**；中文路径直接写中文，不用转成 `%E6%B0%B4...` 那种：
+
+```yaml
+  - /posts/painting/2026-10-26-水族馆/
+```
+
+想给某一篇单独换个标题或简介（比如投给集体博客时用更正式的说法）：
+
+```yaml
+items:
+  - path: /notes/2026-10-26-claude/
+    title: "关于这个站的一点说明"
+    blurb: "一两句话的简介，会替代自动摘要"
+```
+
+排序按**发布时间倒序**，和清单里写的顺序无关。
+
+**写错了会怎样**：不会静默少一条。构建时在 Actions 日志里直接报 WARN，并告诉你第几项：
+
+```text
+WARN  source: 找不到页面 "/posts/inexistent-page/"（data/source.yaml 第 6 项），已跳过
+WARN  source: "/posts/algorithm/permutation" 重复出现（data/source.yaml 第 3 项），已忽略后一条
+WARN  source: "/friends/" 没有 date，无法按时间排序，已跳过（data/source.yaml 第 5 项）
+```
+
+看到 `source:` 开头的 WARN，就去 `data/source.yaml` 改对应那一行。**有 WARN 没处理，就说明清单和实际内容对不上。**
+
+**几点要知道的**：
+
+- 清单为空时 feed 仍然正常生成，只是没有条目，同时报一条 WARN 提醒你。
+- 纯图片帖（正文没有文字）会得到一句兜底简介，不会出现空条目。
+- `/source/` 本身**没有网页**，只有 `index.xml`，直接访问是 404。这是故意的——把 XML 地址填给科协就行。
+- 这个 feed 不出现在站点导航、sitemap 和站内搜索里，读者不会误入。
 ### 怎么订阅（你自己验证一下）
 
 1. 打开 <https://ybnybny.github.io/index.xml> —— 会看到一堆 XML 代码，这是正常的，它是给机器读的

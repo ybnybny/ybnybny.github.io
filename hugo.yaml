@@ -51,6 +51,16 @@ menus:
       pageRef: "/message"
       weight: 50
 
+# ---------------- 输出格式 ----------------
+# Source 专供订阅源，产出 /source/index.xml
+# 只收录 data/source.yaml 里点名的内容，供科协集体博客抓取
+outputFormats:
+  source:
+    mediaType: "application/rss+xml"
+    baseName: "index"
+    isPlainText: true
+    rel: "alternate"
+
 # ---------------- Markdown 渲染 ----------------
 markup:
   goldmark:
