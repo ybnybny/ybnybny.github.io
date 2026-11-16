@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  # 每天自动重建一次，首页的 OJ 统计跟着刷新（不推送也会更新）
+  # 每天自动重建一次，「进程」页的刷题记录跟着刷新（不推送也会更新）
+  # 03:17 UTC = 北京时间 11:17
   schedule:
     - cron: "17 3 * * *"
 

@@ -2,7 +2,7 @@
 """拉取多个 OJ 的做题统计，写成 Hugo 能直接读的 data/ojhunt.json。
 
 为什么需要这个脚本：OJHunt Lite 是 Python 爬虫，静态站没法在浏览器里跑它。
-所以由 CI 在构建前跑一次，把结果落成 JSON，Hugo 构建时读这个 JSON 渲染首页。
+所以由 CI 在构建前跑一次，把结果落成 JSON，Hugo 构建时读这个 JSON 渲染「进程」页。
 
 用法:
     python tools/ojhunt-fetch.py                     # 读 ojhunt.config.yaml，写 data/ojhunt.json
@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG = ROOT / "ojhunt.config.yaml"
 DEFAULT_OUTPUT = ROOT / "data" / "ojhunt.json"
 
-# 只保留首页要用的字段。solved_list 是几千个题目 ID，留着会让 JSON 和提交记录白白变胖
+# 只保留页面要用的字段。solved_list 是几千个题目 ID，留着会让 JSON 和提交记录白白变胖
 KEEP_FIELDS = ("crawler", "title", "username", "success", "solved", "submissions", "error")
 
 
@@ -148,7 +148,7 @@ def main() -> int:
     data = normalize(payload)
     summary = data["summary"]
 
-    # 一个都没成功时保留上一次的好数据，别用一堆空值把首页覆盖掉
+    # 一个都没成功时保留上一次的好数据，别用一堆空值把页面覆盖掉
     if summary["ok"] == 0 and summary["failed"] > 0:
         print(
             f"所有 {summary['failed']} 个平台都查询失败，保留原有 {args.output} 不动。",
