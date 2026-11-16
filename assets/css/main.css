@@ -1088,7 +1088,7 @@ ul.tree ul.tree {
 }
 
 /* ------------------------------ OJ 统计（OJHunt Lite） ------------------------------ */
-/* 首页尾部：各平台通过数 / 提交数。遵守设计系统：只有黑白灰、1px 线条、无阴影无圆角 */
+/* 进程页底部：各平台通过数。遵守设计系统：只有黑白灰、1px 线条、无阴影无圆角 */
 
 .oj-summary {
   display: flex;
@@ -1141,7 +1141,21 @@ ul.tree ul.tree {
   font-size: 13px;
   overflow-wrap: anywhere;
 }
+/* 有个人主页的平台，账号是可点的：用 1px 下划线提示，不引入新颜色 */
+.oj-table .oj-user a {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.oj-table .oj-user a:hover {
+  color: var(--fg);
+  border-bottom-color: var(--fg);
+}
 .oj-table .oj-row--failed td { color: var(--faint); }
+.oj-table .oj-row--failed .oj-user a { border-bottom-color: transparent; }
+
+/* 进程页：正文与刷题记录之间的分隔 */
+#ojhunt { padding-top: 42px; }
 
 @media (max-width: 640px) {
   .oj-updated { margin-left: 0; }

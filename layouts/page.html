@@ -31,6 +31,9 @@
 
       <div class="prose" data-pagefind-body>{{ .Content }}</div>
 
+      {{- /* 正文之后追加做题统计：在 front matter 里写 showOJ: true 的页面才显示 */ -}}
+      {{- if .Params.showOJ }}{{ partial "ojhunt.html" . }}{{ end }}
+
       {{- if $isPost }}{{ partial "post-nav.html" . }}{{ end }}
     </article>
   </main>

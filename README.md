@@ -32,7 +32,8 @@ git add -A && git commit -m "post: 文章名" && git push
 | 加一个新分类 | 在 `content/posts/` 下新建文件夹 + `_index.md` |
 | 发一条随记 | 在 `content/notes/` 下新建一个 `.md`，只写 `date` |
 | 加一个链接 | 改 `data/friends.yaml` |
-| 让首页显示 OJ 做题数 | 改 `ojhunt.config.yaml` |
+| 更新「进程」页在干什么 | 改 `content/progress.md` |
+| 更新刷题记录 | 改 `ojhunt.config.yaml` |
 | 插 B 站视频 | 正文里写 `{{< bilibili BV号 >}}` |
 
 其余细节按需往下查。**本文档可以长期当参考手册用。**
@@ -120,6 +121,7 @@ content/
 ├─ _index.md              主页（个人简介，内容在 hugo.yaml 的 params 里）
 ├─ friends.md             链接页（页面标题是「链接」，文件名保持 friends 是历史原因）
 ├─ message.md             (・ω・) 页（Claude 写的那一页，可直接删）
+├─ progress.md            进程页：上半部分随便写，下半部分是刷题记录
 ├─ posts/                 长文，文件夹即分类
 │  ├─ tech/
 │  │  └─ this-blog/
@@ -137,8 +139,8 @@ content/
 
 content/source.md         Source 专供订阅源的载体（只产出 xml，没有网页）
 data/source.yaml          Source 投递清单（决定哪几篇进 /source/index.xml）
-data/ojhunt.json          首页 OJ 统计的数据（脚本生成，不要手改）
-ojhunt.config.yaml        首页 OJ 统计的账号清单（加平台只改这里）
+data/ojhunt.json          进程页刷题记录的数据（脚本生成，不要手改）
+ojhunt.config.yaml        进程页刷题记录的账号清单（加平台只改这里）
 tools/ojhunt-fetch.py     调 OJHunt Lite 抓取，生成 data/ojhunt.json
 data/friends.yaml         链接页数据（增删改只动这个文件）
 hugo.yaml                 全部站点配置（含顶部导航）
@@ -383,9 +385,18 @@ params:
 
 头像文件在 `static/images/ybnybny.png`，想换直接覆盖。
 
-### 首页尾部的 OJ 统计（OJHunt Lite）
+### 进程页（`/progress/`）：在干什么 + 刷题记录
 
-首页最下面那块「在线评测」，把你在 CodeForces、AtCoder、洛谷等平台上的通过数和提交数汇总在一起。
+这一页分两段，顺序固定：
+
+1. **上半部分是你自己写的正文**，直接编辑 `content/progress.md`，跟写普通文章完全一样——小标题、列表、链接、公式、B 站视频都能用。改完 `git push` 就是一页新内容，不会碰到任何模板。
+2. **下半部分是刷题记录**，由 CI 抓取生成，见下一小节。
+
+页面的 front matter 里有一行 `showOJ: true`，这是开关：**删掉这行，刷题记录就整块不显示**，页面退化成一张普通的手写页。想把它挪到别的页面，在那个页面的 front matter 里加同一行即可。
+
+### 刷题记录（OJHunt Lite）
+
+进程页最下面那块，把你在 CodeForces、洛谷、POJ 等平台上的**通过题数**汇总在一起，账号名可以点进对应平台的个人主页。
 
 **为什么不能像普通 JS 组件那样直接嵌**：OJHunt Lite 是 Python 爬虫，要真的去请求各个 OJ 的页面拿数据。静态站没有后端，浏览器里跑不起来。所以数据是在 **GitHub Actions 构建时抓一次**，落成 JSON，Hugo 再读这个 JSON 渲染：
 
@@ -394,10 +405,10 @@ Actions（有网络、能跑 Python）
   └─ tools/ojhunt-fetch.py
        └─ ojhunt --json ...  →  data/ojhunt.json
                                      ↓
-                          hugo 构建  →  首页表格
+                          hugo 构建  →  进程页表格
 ```
 
-**所以首页显示的是构建那一刻的数据，不是实时的。** 站点每天 03:17（UTC）定时重建一次，加上你每次 `git push` 也会重建，统计会跟着刷新。区块右侧的「更新于」就是抓取时间。
+**所以显示的是构建那一刻的数据，不是实时的。** 站点每天 03:17（UTC）定时重建一次，加上你每次 `git push` 也会重建，统计会跟着刷新。区块右侧的「更新于」就是抓取时间。
 
 #### 怎么配（只有一步）
 
@@ -415,12 +426,12 @@ accounts:
 
 - `crawler` 必须是 OJHunt Lite 支持的平台名，**目前共 41 个**。完整清单和每个平台 `username` 该填什么，都列在 `ojhunt.config.yaml` 的注释里，直接照着抄；也可以用 `ojhunt --list` 查
 - `username` 留空的那一行会被**自动跳过**，所以可以先把想加的平台全写上，再慢慢填
-- 全部为空 = 首页**不显示**这一块，不会出现空标题
+- 全部为空 = **不显示**这一块，不会出现空标题
 - 洛谷、牛客、LOJ、UOJ、HDU、POJ 等中文平台都**不需要登录**，填上就能查；`cses`、`vjudge` 需要账号密码，不能写进这个文件（见下面「两个注意点」）
 
 > **各平台的用户名不是同一个东西**，这是最容易配错的地方：CodeForces 是 handle，洛谷是用户名或 UID，牛客**必须**是纯数字用户 ID，AtCoder 是 username。填错的表现是该行显示「查询失败」或查到的数字明显不对。
 
-> **「提交数」在有些平台不是真的提交次数**：洛谷取的是「提交过的**题目数**」（`submittedProblemCount`）；UOJ 的提交记录页现在需要登录，crawler 拿不到，直接用通过数顶替（那行两个数字会一样）；POJ 拿不到总数时会退回按提交日志统计，数字偏低；NIT 缺数据时也用通过数补齐；AtCoder 按「AC 过的题目数」计。所以横向比提交数意义不大，**比「通过数」才有参考价值**。只在意题数的话，把 `layouts/partials/ojhunt.html` 里的提交列删掉。
+**只显示通过数，不显示提交数。** 这不是偷懒：提交数在好几个平台口径都不干净——洛谷取的是「提交过的**题目数**」（`submittedProblemCount`），UOJ 的提交记录页要登录、crawler 拿不到只能用通过数顶替，POJ 拿不到总数时退回按日志统计会偏低，AtCoder 干脆就是「AC 过的题目数」。横向比没有意义，所以表格里只留通过数。`data/ojhunt.json` 里仍然带着 `submissions` 字段，想加回来在 `layouts/partials/ojhunt.html` 补一列即可。
 
 #### 改完怎么生效
 
@@ -441,7 +452,7 @@ accounts:
 | 个别平台失败（限流、网站改版、用户名写错） | 该行显示「查询失败」，其它行正常显示 |
 | 全部平台都失败 | **保留上一次的数据**，不会被清空 |
 | 这一步整个报错（装包失败、超时） | `continue-on-error`，站点照常部署，沿用上一次的 JSON |
-| 从来没有成功抓到过 | 首页不显示这一块 |
+| 从来没有成功抓到过 | 不显示这一块（正文照常显示） |
 
 「上一次的数据」是靠 workflow 里的 `actions/cache` 存 `data/ojhunt.json` 实现的——CI 每次都是干净 checkout，不缓存就没有上次的数据可用。所以失败时顶多是数据旧一天，不会开天窗。
 
@@ -537,8 +548,8 @@ hugo --gc --minify
 
 - 站内搜索的中文分词基于 Pagefind 的内置方案，不做词干化，长句搜不到时建议换成关键词。
 - 图片没有做自动压缩和响应式尺寸，图片多的时候手动压一下（建议 > 1000px 宽的先缩到 1000px 以内）。
-- Pagefind 索引只覆盖带 `data-pagefind-body` 的正文页（文章、随记、链接），首页和列表页不参与检索。
-- 首页的 OJ 统计是**构建时的快照**，不是实时数据。要立刻刷新就去 Actions 手动跑一次 Build and deploy；平时靠每天 03:17（UTC）的定时重建。
+- Pagefind 索引只覆盖带 `data-pagefind-body` 的正文页（文章、随记、链接、进程页正文），首页和列表页不参与检索。进程页的刷题记录在 `data-pagefind-body` 之外，所以不会被搜到。
+- 进程页的刷题记录是**构建时的快照**，不是实时数据。要立刻刷新就去 Actions 手动跑一次 Build and deploy；平时靠每天 03:17（UTC）的定时重建。
 
 ---
 

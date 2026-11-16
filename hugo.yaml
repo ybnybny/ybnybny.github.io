@@ -41,6 +41,9 @@ menus:
     - name: "博客"
       pageRef: "/posts"
       weight: 20
+    - name: "进程"
+      pageRef: "/progress"
+      weight: 25
     - name: "随记"
       pageRef: "/notes"
       weight: 30
