@@ -1,0 +1,9 @@
+{
+
+  
+  "results": [
+    { "crawler": "codeforces", "title": "CodeForces", "username": "x", "success": false, "error": "timeout" },
+    { "crawler": "atcoder", "title": "AtCoder", "username": "x", "success": false, "error": "HTTP 503" }
+  ],
+  "summary": { "unique_solved": 0, "total_submissions": 0, "ok": 0, "failed": 2 }
+}

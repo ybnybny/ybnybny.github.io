@@ -1,0 +1,87 @@
+# ============================================================
+#  首页「在线评测」区块：要统计哪些 OJ 账号
+#
+#  这个文件只由 tools/ojhunt-fetch.py 读取，Hugo 不读它。
+#  抓取在 GitHub Actions 里跑（本地要自己装 ojhunt 才跑得动），
+#  结果写到 data/ojhunt.json，首页再读那个 JSON。
+#
+#  加一行 = 多统计一个平台。删掉全部 = 首页不显示这一块。
+#  username 留空的行会被自动跳过，所以可以先把平台全写上，再慢慢填。
+# ============================================================
+
+accounts:
+  - crawler: codeforces
+    username: ybnybny
+  - crawler: luogu          # 填用户名或纯数字 UID 都认
+    username: "416766"      # 站内昵称 bnnnnn
+  - crawler: poj
+    username: ybnybny
+  # 下面是还没填的，留空 = 自动跳过，填上就生效
+  - crawler: atcoder
+    username: ""
+  - crawler: uva
+    username: ""
+
+# ------------------------------------------------------------
+#  OJHunt Lite 支持的平台全表（41 个，取自 crawlers 目录）
+#  直接用 crawler 名字，不要写标题里的中文或空格
+# ------------------------------------------------------------
+#
+#  免登录，填上就能查（39 个）：
+#    acmp  acmu  aizu  atcoder  code360  codechef  codeforces
+#    codewars  codingame  csg  darkbzoj  doj  eolymp
+#    geeksforgeeks  hdu  hust  kep  kilonova  leetcode  lightoj
+#    loj(LibreOJ)  luogu(洛谷)  nbut  nit(OurOJ)  nod(51Nod)  nowcoder(牛客)
+#    ojuz  poj  robocontest  samcoding  sdutoj  sortme  timus
+#    tlx  toph  uoj  uva  yosupo  yukicoder
+#
+#  需要账号密码（别往这个文件里写，会进 git 历史）：
+#    cses     —— 共享账号登录后，可按数字 ID 查任意人
+#    vjudge   —— 同上；聚合站，题量单独计算
+#    这类平台要在仓库 Settings → Secrets and variables → Actions
+#    里存 LOGIN_USERNAME__CSES / LOGIN_PASSWORD__CSES 之类的变量，
+#    再在 workflow 里传给 ojhunt。
+#
+# ------------------------------------------------------------
+#  各平台 username 填什么（最容易配错的地方）
+# ------------------------------------------------------------
+#
+#    codeforces   handle，例如 tourist
+#    atcoder      用户名，例如 tourist
+#    uva          UVA 用户名（不是 UID，走 UHunt 接口换 UID）
+#    poj          POJ 用户名
+#    luogu        用户名或纯数字 UID（811437 这种），两种都认
+#    nowcoder     必须是纯数字用户 ID，在你的 AC 列表 URL 里
+#    loj          LOJ 用户名
+#    uoj          UOJ 用户名
+#    vjudge       VJudge 用户名（需登录）
+#    cses         纯数字 user ID（需登录）
+#
+#  填错的表现是该行显示「查询失败」。
+#
+# ------------------------------------------------------------
+#  一个坑：提交数在不同平台含义不一样
+# ------------------------------------------------------------
+#
+#  多数平台给的是真·提交次数，但：
+#    luogu   取的是 submittedProblemCount——「提交过的题目数」，不是提交次数。
+#    uoj     提交记录页现在需要登录，crawler 拿不到，直接拿通过数顶替
+#            （代码里 submissions = solved），所以那行两个数字会一样。
+#    poj     拿不到提交总数时退回 /status 日志统计，数字会比真实值偏低。
+#    nit     页面上那行数据缺失时，用通过数补齐（max(submissions, solved)）。
+#    atcoder 按「AC 过的题目数」计，不是提交次数。
+#  所以横向比「提交数」意义不大，比「通过数」才有参考价值。
+#  只在意题数的话，把 layouts/partials/ojhunt.html 里的提交列删掉即可。
+#
+# ------------------------------------------------------------
+#  POJ / UVA 这两个在 CI 里可能慢，属于已知情况
+# ------------------------------------------------------------
+#
+#  poj  优先读 /userstatus 汇总页，但 POJ 对非机房 IP 常直接返回 403，
+#       这时 crawler 会退回逐页翻公开的 /status 提交日志（每页 500 条）。
+#       提交多的人会翻好几页，加上 HDU/POJ 本身不稳，偶尔会超时失败。
+#       失败就是那行显示「查询失败」，不影响其它平台。
+#
+#  uva  走 UHunt 接口，本身很快；但为了给出题目编号，会对每个 AC 过的
+#       题目各发一次请求换显示编号（并发 20，并缓存在 problem_labels.db）。
+#       题库刷得多的人首次查询会慢几十秒，之后命中缓存就快了。

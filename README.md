@@ -32,6 +32,7 @@ git add -A && git commit -m "post: 文章名" && git push
 | 加一个新分类 | 在 `content/posts/` 下新建文件夹 + `_index.md` |
 | 发一条随记 | 在 `content/notes/` 下新建一个 `.md`，只写 `date` |
 | 加一个链接 | 改 `data/friends.yaml` |
+| 让首页显示 OJ 做题数 | 改 `ojhunt.config.yaml` |
 | 插 B 站视频 | 正文里写 `{{< bilibili BV号 >}}` |
 
 其余细节按需往下查。**本文档可以长期当参考手册用。**
@@ -136,6 +137,9 @@ content/
 
 content/source.md         Source 专供订阅源的载体（只产出 xml，没有网页）
 data/source.yaml          Source 投递清单（决定哪几篇进 /source/index.xml）
+data/ojhunt.json          首页 OJ 统计的数据（脚本生成，不要手改）
+ojhunt.config.yaml        首页 OJ 统计的账号清单（加平台只改这里）
+tools/ojhunt-fetch.py     调 OJHunt Lite 抓取，生成 data/ojhunt.json
 data/friends.yaml         链接页数据（增删改只动这个文件）
 hugo.yaml                 全部站点配置（含顶部导航）
 layouts/                  模板
@@ -379,6 +383,95 @@ params:
 
 头像文件在 `static/images/ybnybny.png`，想换直接覆盖。
 
+### 首页尾部的 OJ 统计（OJHunt Lite）
+
+首页最下面那块「在线评测」，把你在 CodeForces、AtCoder、洛谷等平台上的通过数和提交数汇总在一起。
+
+**为什么不能像普通 JS 组件那样直接嵌**：OJHunt Lite 是 Python 爬虫，要真的去请求各个 OJ 的页面拿数据。静态站没有后端，浏览器里跑不起来。所以数据是在 **GitHub Actions 构建时抓一次**，落成 JSON，Hugo 再读这个 JSON 渲染：
+
+```text
+Actions（有网络、能跑 Python）
+  └─ tools/ojhunt-fetch.py
+       └─ ojhunt --json ...  →  data/ojhunt.json
+                                     ↓
+                          hugo 构建  →  首页表格
+```
+
+**所以首页显示的是构建那一刻的数据，不是实时的。** 站点每天 03:17（UTC）定时重建一次，加上你每次 `git push` 也会重建，统计会跟着刷新。区块右侧的「更新于」就是抓取时间。
+
+#### 怎么配（只有一步）
+
+改 `ojhunt.config.yaml`：
+
+```yaml
+accounts:
+  - crawler: codeforces
+    username: 你的CodeForces用户名
+  - crawler: luogu
+    username: 你的洛谷ID
+  - crawler: atcoder
+    username: 你的AtCoder用户名
+```
+
+- `crawler` 必须是 OJHunt Lite 支持的平台名，**目前共 41 个**。完整清单和每个平台 `username` 该填什么，都列在 `ojhunt.config.yaml` 的注释里，直接照着抄；也可以用 `ojhunt --list` 查
+- `username` 留空的那一行会被**自动跳过**，所以可以先把想加的平台全写上，再慢慢填
+- 全部为空 = 首页**不显示**这一块，不会出现空标题
+- 洛谷、牛客、LOJ、UOJ、HDU、POJ 等中文平台都**不需要登录**，填上就能查；`cses`、`vjudge` 需要账号密码，不能写进这个文件（见下面「两个注意点」）
+
+> **各平台的用户名不是同一个东西**，这是最容易配错的地方：CodeForces 是 handle，洛谷是用户名或 UID，牛客**必须**是纯数字用户 ID，AtCoder 是 username。填错的表现是该行显示「查询失败」或查到的数字明显不对。
+
+> **「提交数」在有些平台不是真的提交次数**：洛谷取的是「提交过的**题目数**」（`submittedProblemCount`）；UOJ 的提交记录页现在需要登录，crawler 拿不到，直接用通过数顶替（那行两个数字会一样）；POJ 拿不到总数时会退回按提交日志统计，数字偏低；NIT 缺数据时也用通过数补齐；AtCoder 按「AC 过的题目数」计。所以横向比提交数意义不大，**比「通过数」才有参考价值**。只在意题数的话，把 `layouts/partials/ojhunt.html` 里的提交列删掉。
+
+#### 改完怎么生效
+
+`git push` 之后等 Actions 跑完即可。也可以手动触发：仓库 **Actions → Build and deploy → Run workflow**。
+
+想确认到底抓没抓到，看 Actions 日志里这一步的结尾：
+
+```text
+写入 data/ojhunt.json：123 题 / 456 次提交（3 成功，0 失败）
+```
+
+#### 失败了会怎样
+
+这一块专门做了兜底，**任何单个 OJ 抽风都不会导致整站发不出去**：
+
+| 情况 | 结果 |
+| --- | --- |
+| 个别平台失败（限流、网站改版、用户名写错） | 该行显示「查询失败」，其它行正常显示 |
+| 全部平台都失败 | **保留上一次的数据**，不会被清空 |
+| 这一步整个报错（装包失败、超时） | `continue-on-error`，站点照常部署，沿用上一次的 JSON |
+| 从来没有成功抓到过 | 首页不显示这一块 |
+
+「上一次的数据」是靠 workflow 里的 `actions/cache` 存 `data/ojhunt.json` 实现的——CI 每次都是干净 checkout，不缓存就没有上次的数据可用。所以失败时顶多是数据旧一天，不会开天窗。
+
+#### 本地想看效果
+
+需要本机装 Python 依赖，并且能连上那些 OJ：
+
+```bash
+pip install ojhunt pyyaml
+python tools/ojhunt-fetch.py     # 抓一次，写 data/ojhunt.json
+hugo server -D
+```
+
+只想确认命令拼得对不对，不联网也不写文件：
+
+```bash
+python tools/ojhunt-fetch.py --dry-run
+```
+
+会打印出类似 `ojhunt --json me@codeforces me@luogu` 的命令，用它排查配置有没有写对。
+
+#### 两个注意点
+
+1. **`data/ojhunt.json` 是脚本产物，不要手改**，下次构建会被覆盖。要改数据，改 `ojhunt.config.yaml`。
+2. **需要登录才能看的平台**（VJudge、QOJ 这类）要账号密码。**别写进 `ojhunt.config.yaml`**——它会进 git 历史。正确做法是在仓库 **Settings → Secrets and variables → Actions** 里存，然后在 workflow 里以环境变量传给 `ojhunt`（OJHunt Lite 认 `LOGIN_USERNAME__VJUDGE` / `LOGIN_PASSWORD__VJUDGE` 这类变量）。只用 CodeForces / 洛谷 / AtCoder 的话不用管这条。
+
+#### 样式约定
+
+这一块沿用全站的白底黑线：只有 1px 分隔线、没有圆角没有阴影、数字用等宽字体右对齐（这样上下位数能对齐）。样式在 `assets/css/main.css` 的「OJ 统计」一节，改的时候守住 `八、设计约定` 那几条。
+
 ---
 
 ## 六、随记的机器可读接口
@@ -445,6 +538,7 @@ hugo --gc --minify
 - 站内搜索的中文分词基于 Pagefind 的内置方案，不做词干化，长句搜不到时建议换成关键词。
 - 图片没有做自动压缩和响应式尺寸，图片多的时候手动压一下（建议 > 1000px 宽的先缩到 1000px 以内）。
 - Pagefind 索引只覆盖带 `data-pagefind-body` 的正文页（文章、随记、链接），首页和列表页不参与检索。
+- 首页的 OJ 统计是**构建时的快照**，不是实时数据。要立刻刷新就去 Actions 手动跑一次 Build and deploy；平时靠每天 03:17（UTC）的定时重建。
 
 ---
 

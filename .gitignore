@@ -4,3 +4,7 @@
 .DS_Store
 Thumbs.db
 node_modules/
+__pycache__/
+*.pyc
+# ojhunt 抓取时生成的题目编号缓存（uva / nit 用）
+problem_labels.db

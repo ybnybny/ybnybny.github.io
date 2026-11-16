@@ -1,0 +1,84 @@
+{{- /* 首页尾部：OJHunt Lite 多平台做题统计
+     数据来自 data/ojhunt.json，由 tools/ojhunt-fetch.py 在 CI 里生成
+     没有数据（还没配账号 / 抓取失败）时整块不渲染，首页不会出现空标题
+     标题可以用 hugo.yaml 的 params.ojhunt.title 覆盖 */ -}}
+{{- $data := hugo.Data.ojhunt -}}
+{{- $results := slice -}}
+{{- with $data }}{{ with .results }}{{ $results = . }}{{ end }}{{ end -}}
+{{- if $results -}}
+
+{{- $title := "在线评测" -}}
+{{- with site.Params.ojhunt }}{{ with .title }}{{ $title = . }}{{ end }}{{ end -}}
+
+{{- /* ojhunt 的 JSON 不一定带 title（各版本有出入），缺了就用这张表兜底，
+       免得表格里出现小写 id。表里没有再退回 crawler 名。 */ -}}
+{{- $names := dict
+  "codeforces" "CodeForces"
+  "atcoder" "AtCoder"
+  "luogu" "洛谷"
+  "nowcoder" "牛客"
+  "loj" "LibreOJ"
+  "uoj" "UOJ"
+  "poj" "POJ"
+  "uva" "UVa"
+  "hdu" "HDU"
+  "vjudge" "VJudge"
+  "cses" "CSES"
+  "codechef" "CodeChef"
+  "leetcode" "LeetCode"
+  "nod" "51Nod"
+  "nit" "NIT"
+  "aizu" "Aizu"
+  "timus" "Timus"
+  "lightoj" "LightOJ" -}}
+
+{{- $ok := where $results "success" true -}}
+{{- $failed := where $results "success" false -}}
+{{- $rows := sort $ok "solved" "desc" -}}
+
+<section class="home-block" id="ojhunt">
+  <div class="block-head">
+    <h2>{{ $title }}</h2>
+    <a href="https://github.com/Liu233w/ojhunt-lite" rel="noopener" target="_blank">OJHunt Lite ↗</a>
+  </div>
+
+  <p class="oj-summary">
+    {{- with $data.summary }}
+    <span>共 <strong>{{ int .unique_solved }}</strong> 题通过</span>
+    <span><strong>{{ int .total_submissions }}</strong> 次提交</span>
+    {{- end }}
+    <span><strong>{{ len $rows }}</strong> 个平台</span>
+    {{- with $data.generated_at }}
+    <span class="oj-updated">更新于 {{ (time.AsTime .).Format "2006-01-02" }}</span>
+    {{- end }}
+  </p>
+
+  <table class="oj-table">
+    <thead>
+      <tr>
+        <th scope="col">平台</th>
+        <th scope="col">账号</th>
+        <th scope="col" class="num">通过</th>
+        <th scope="col" class="num">提交</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{- range $rows }}
+      <tr>
+        <td class="oj-name">{{ or .title (index $names .crawler) .crawler }}</td>
+        <td class="oj-user">{{ .username }}</td>
+        <td class="num">{{ int .solved }}</td>
+        <td class="num">{{ int .submissions }}</td>
+      </tr>
+      {{- end }}
+      {{- range $failed }}
+      <tr class="oj-row--failed">
+        <td class="oj-name">{{ or .title (index $names .crawler) .crawler }}</td>
+        <td class="oj-user">{{ .username }}</td>
+        <td class="num" colspan="2">查询失败</td>
+      </tr>
+      {{- end }}
+    </tbody>
+  </table>
+</section>
+{{- end -}}

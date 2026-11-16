@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # 每天自动重建一次，首页的 OJ 统计跟着刷新（不推送也会更新）
+  schedule:
+    - cron: "17 3 * * *"
 
 permissions:
   contents: read
@@ -29,6 +32,29 @@ jobs:
         with:
           hugo-version: "0.168.0"   # 锁定版本：升级请手动改这一行并本地验证
           extended: true
+
+      # 把上一次抓到的 data/ojhunt.json 取回来，作为「抓取失败时的退路」。
+      # 没有这一步的话，每次都是干净 checkout，失败就只能隐藏整个区块，
+      # README 里说的「保留上一次的数据」也就不成立。
+      # key 用 run_id 保证每次都能写新缓存，restore-keys 前缀匹配最近一次。
+      - name: Restore last OJ stats
+        uses: actions/cache@v4
+        with:
+          path: data/ojhunt.json
+          key: ojhunt-${{ github.run_id }}
+          restore-keys: |
+            ojhunt-
+
+      # OJ 统计：构建前现抓一次，写进 data/ojhunt.json，Hugo 随即读取。
+      # 注意不能改成“抓完提交回仓库再触发构建”——用 GITHUB_TOKEN 的提交不会触发
+      # on: push 的工作流，那样数据会一直是旧的。
+      # continue-on-error：某个 OJ 抽风或限流时，退回上面缓存里的旧数据，
+      # 不能让整站构建失败。
+      - name: Fetch OJ stats (best effort)
+        continue-on-error: true
+        run: |
+          python -m pip install --quiet --disable-pip-version-check ojhunt pyyaml
+          python tools/ojhunt-fetch.py
 
       - name: Build site
         run: hugo --gc --minify --logLevel info

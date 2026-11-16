@@ -1087,6 +1087,68 @@ ul.tree ul.tree {
   .friend-grid { grid-template-columns: 1fr; }
 }
 
+/* ------------------------------ OJ 统计（OJHunt Lite） ------------------------------ */
+/* 首页尾部：各平台通过数 / 提交数。遵守设计系统：只有黑白灰、1px 线条、无阴影无圆角 */
+
+.oj-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+}
+.oj-summary strong {
+  color: var(--fg);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.oj-updated { margin-left: auto; color: var(--faint); }
+
+.oj-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.oj-table th {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  text-align: left;
+  white-space: nowrap;
+}
+.oj-table td {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: baseline;
+}
+.oj-table tbody tr:last-child td { border-bottom: 0; }
+.oj-table .num {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.oj-table .oj-name { font-weight: 600; white-space: nowrap; }
+.oj-table .oj-user {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.oj-table .oj-row--failed td { color: var(--faint); }
+
+@media (max-width: 640px) {
+  .oj-updated { margin-left: 0; }
+  .oj-table { font-size: 13.5px; }
+  .oj-table .oj-user { font-size: 12px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }

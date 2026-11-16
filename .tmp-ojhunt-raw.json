@@ -1,0 +1,40 @@
+{
+  
+  "results": [
+    {
+      "crawler": "codeforces",
+      "title": "CodeForces",
+      "username": "tourist",
+      "success": true,
+      "solved": 2962,
+      "submissions": 5386,
+      "solved_list": ["1A", "1B", "2C"],
+      "duration": 2.78
+    },
+    {
+      "crawler": "atcoder",
+      "title": "AtCoder",
+      "username": "tourist",
+      "success": true,
+      "solved": 1051,
+      "submissions": 1051,
+      "solved_list": null,
+      "duration": 1.25
+    },
+    {
+      "crawler": "vjudge",
+      "title": "Virtual Judge",
+      "username": "tourist",
+      "success": false,
+      "error": "HTTP 403",
+      "duration": 0.9
+    }
+  ],
+  "summary": {
+    "unique_solved": 2962,
+    "total_submissions": 6437,
+    "ok": 2,
+    "failed": 1,
+    "duration": 2.78
+  }
+}
