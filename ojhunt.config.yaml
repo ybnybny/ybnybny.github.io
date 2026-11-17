@@ -17,6 +17,8 @@ accounts:
     username: "416766"      # 站内昵称 bnnnnn
   - crawler: poj
     username: ybnybny
+  - crawler: loj
+    username: ybnybny
   # 下面是还没填的，留空 = 自动跳过，填上就生效
   - crawler: atcoder
     username: ""
@@ -52,6 +54,7 @@ accounts:
 #    uva          UVA 用户名（不是 UID，走 UHunt 接口换 UID）
 #    poj          POJ 用户名
 #    luogu        用户名或纯数字 UID（811437 这种），两种都认
+#    loj          LOJ 用户名（主页形如 https://loj.ac/u/ybnybny）
 #    nowcoder     必须是纯数字用户 ID，在你的 AC 列表 URL 里
 #    loj          LOJ 用户名
 #    uoj          UOJ 用户名
@@ -73,6 +76,12 @@ accounts:
 #    atcoder 按「AC 过的题目数」计，不是提交次数。
 #  所以表格只留通过数。data/ojhunt.json 里的 submissions 字段仍然保留，
 #  想加回来，在 layouts/partials/ojhunt.html 的表格里补一列即可。
+#
+#  但「通过数」也不是全都干净，这个要知道：
+#    loj      solved 是数「公开的 Accepted 提交」里不重复的题目，
+#             如果你在 LOJ 上有非公开提交，这里会比你实际 AC 的少。
+#             页面上「通过过的题数」那个官方统计才是准的。
+#    poj      退回 /status 翻日志时只统计看得到的那部分，同样可能偏低。
 #
 # ------------------------------------------------------------
 #  POJ / UVA 这两个在 CI 里可能慢，属于已知情况

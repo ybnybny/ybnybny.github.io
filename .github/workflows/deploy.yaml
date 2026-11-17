@@ -34,6 +34,14 @@ jobs:
           hugo-version: "0.168.0"   # 锁定版本：升级请手动改这一行并本地验证
           extended: true
 
+      # ojhunt 要求 Python >= 3.12，而且 runner 上不保证有 `python` 这个命令
+      # （有些镜像只提供 python3）。用 setup-python 把版本和命令名都钉死，
+      # 否则下面那步会失败，而 continue-on-error 会把失败吞掉、数据一直是旧的。
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       # 把上一次抓到的 data/ojhunt.json 取回来，作为「抓取失败时的退路」。
       # 没有这一步的话，每次都是干净 checkout，失败就只能隐藏整个区块，
       # README 里说的「保留上一次的数据」也就不成立。
